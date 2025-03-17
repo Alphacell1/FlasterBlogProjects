@@ -1,0 +1,20 @@
+<div class="blog-form-container">
+    <div class="blog-form-box">
+      <h2>Create a New Blog</h2>
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Title</label>
+          <input [(ngModel)]="title" name="title" required />
+        </div>
+  
+        <div class="form-group">
+          <label>Content</label>
+          <textarea [(ngModel)]="content" name="content" required></textarea>
+        </div>
+  
+        <button type="submit">Publish</button>
+        <p *ngIf="errorMsg" class="error">{{ errorMsg }}</p>
+      </form>
+    </div>
+  </div>
+  

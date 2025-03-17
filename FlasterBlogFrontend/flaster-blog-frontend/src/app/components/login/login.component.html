@@ -1,0 +1,56 @@
+<div class="auth-container">
+  <div class="auth-box">
+    <h2 *ngIf="!isRegisterMode">Login</h2>
+    <h2 *ngIf="isRegisterMode">Register</h2>
+    
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- Username -->
+      <div class="form-group">
+        <label>Username</label>
+        <input [(ngModel)]="username" name="username" required />
+      </div>
+      
+      <!-- Email (only show if in register mode) -->
+      <div class="form-group" *ngIf="isRegisterMode">
+        <label>Email</label>
+        <input [(ngModel)]="email" name="email" type="email" required />
+      </div>
+      
+      <!-- Password -->
+      <div class="form-group">
+        <label>Password</label>
+        <input [(ngModel)]="password" name="password" type="password" required />
+      </div>
+
+      <div class="form-group" *ngIf="isRegisterMode">
+        <label>Role</label>
+        <select [(ngModel)]="role" name="role" required>
+          <option value="AUTHOR">Author</option>
+          <option value="READER">Reader</option>
+        </select>
+      </div>
+
+      <!-- "Remember Me" only relevant to login, but you can show it always if you like -->
+      <div class="form-group" *ngIf="!isRegisterMode">
+        <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe"/>
+        <label>Remember Me</label>
+      </div>
+
+      <!-- Submit button text changes based on mode -->
+      <button type="submit">
+        {{ isRegisterMode ? 'Register' : 'Login' }}
+      </button>
+
+      <!-- Display error messages -->
+      <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+    </form>
+
+    <div class="toggle-link">
+      <button type="button" (click)="toggleMode()">
+        <!-- Toggle text: if in Register mode, show "Already have an account? Login" -->
+        <!-- otherwise "Don't have an account? Register" -->
+        {{ isRegisterMode ? 'Already have an account? Login' : 'Don\'t have an account? Register' }}
+      </button>
+    </div>
+  </div>
+</div>
