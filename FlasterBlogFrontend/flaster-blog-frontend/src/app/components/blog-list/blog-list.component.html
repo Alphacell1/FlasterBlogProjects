@@ -1,6 +1,5 @@
 <h2>Blog Posts</h2>
 
-<!-- If user is an author, show a 'Create New Blog' button -->
 <div class="top-actions" *ngIf="isAuthor()">
   <button (click)="goToCreateBlog()">Create New Blog</button>
 </div>
@@ -13,5 +12,22 @@
   <div class="blog-actions" *ngIf="isAuthor()">
     <button (click)="editBlog(blog.id)">Edit</button>
     <button (click)="deleteBlog(blog.id)">Delete</button>
+  </div>
+
+  <!-- Comment Section -->
+  <div class="comment-section">
+    <h4>Comments</h4>
+
+    <!-- existing comments -->
+    <div *ngFor="let c of blog.comments" class="comment">
+      <!-- If you stored c.user, we can do c.user.username or c.user?.username -->
+      <strong>{{ c.user?.username }}</strong>: {{ c.message }}
+    </div>
+
+    <!-- Add new comment form (both READER and AUTHOR can do it) -->
+    <div class="add-comment">
+      <textarea [(ngModel)]="blog.newComment" placeholder="Add a comment..."></textarea>
+      <button (click)="addComment(blog)">Post Comment</button>
+    </div>
   </div>
 </div>

@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 export class BlogService {
   private apiUrl = '/api/blogs';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   getAllBlogs(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
@@ -42,5 +42,17 @@ export class BlogService {
     }
     return headers;
   }
-  
+
+  addComment(blogId: number, message: string): Observable<any> {
+    const headers = this.attachAuthHeader();
+    return this.http.post<any>(`/api/comments/${blogId}`, { message }, { headers });
+  }
+
+  getComments(blogId: number): Observable<any[]> {
+    const headers = this.attachAuthHeader();
+    return this.http.get<any[]>(`/api/comments/${blogId}`, { headers });
+  }
+
+
+
 }
