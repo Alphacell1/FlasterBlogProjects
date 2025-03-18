@@ -4,8 +4,6 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 
-
-
 interface DecodedToken {
   sub: string;     // username
   roles: string[]; // e.g. ["ROLE_AUTHOR", "ROLE_READER"]
@@ -21,7 +19,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // Login: get { token }, decode JWT to store roles in localStorage
+  // ================ LOGIN ================
   login(username: string, password: string): Observable<{ token: string }> {
     return this.http.post<{ token: string }>(`${this.authUrl}/login`, { username, password })
       .pipe(
@@ -39,7 +37,7 @@ export class AuthService {
       );
   }
 
-  // Register new user (backend returns { message: string })
+  // ================ REGISTER ================
   register(username: string, password: string, email: string, role: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
       `${this.authUrl}/register`,
@@ -49,7 +47,7 @@ export class AuthService {
     );
   }
 
-  // === Token / Role helpers ===
+  // ================ TOKEN / ROLE HELPERS ================
   storeToken(token: string): void {
     localStorage.setItem('jwt', token);
   }
@@ -75,7 +73,21 @@ export class AuthService {
     return roles.includes('ROLE_AUTHOR');
   }
 
-  // === Error handling ===
+  // NEW METHOD: Return the 'sub' (username) from the JWT
+  getUsername(): string {
+    const token = this.getToken();
+    if (!token) return '';
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      return decoded?.sub || '';
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return '';
+    }
+  }
+
+  // ================ ERROR HANDLING ================
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
     if (error.error instanceof ErrorEvent) {

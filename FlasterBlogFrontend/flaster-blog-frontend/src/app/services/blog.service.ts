@@ -54,5 +54,15 @@ export class BlogService {
   }
 
 
+  likeBlog(blogId: number): Observable<void> {
+    const headers = this.attachAuthHeader();
+    return this.http.post<void>(`${this.apiUrl}/${blogId}/like`, {}, { headers });
+  }
+  
+  dislikeBlog(blogId: number): Observable<void> {
+    const headers = this.attachAuthHeader();
+    return this.http.post<void>(`${this.apiUrl}/${blogId}/dislike`, {}, { headers });
+  }
+  
 
 }

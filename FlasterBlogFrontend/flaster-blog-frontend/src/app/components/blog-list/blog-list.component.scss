@@ -42,4 +42,37 @@
     resize: vertical;
     padding: 0.5rem;
   }
+
+  .like-dislike {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 1rem; /* space between like and dislike buttons */
+  }
+  
+  /* Common style for both buttons */
+  .like-dislike button {
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: background-color 0.2s;
+  }
+  
+  /* On hover, lighten background a bit */
+  .like-dislike button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .like-button span {
+    color: green;
+  }
+  .dislike-button span {
+    color: red;
+  }
+  
   

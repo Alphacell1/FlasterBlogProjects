@@ -26,19 +26,30 @@ export class BlogListComponent implements OnInit {
   // Typical approach in blog-list.component.ts:
   ngOnInit(): void {
     this.blogService.getAllBlogs().subscribe(blogs => {
-      this.blogs = blogs.map(b => ({
-        ...b,
-        comments: [],
-        newComment: ''
-      }));
-
-      // For each blog, fetch comments from the server:
+      this.blogs = blogs.map((b: any) => {
+        // Convert likedBy user objects to string usernames
+        b.likedBy = (b.likedBy || []).map((u: any) =>
+          typeof u === 'object' && u.username ? u.username : u
+        );
+        // Convert dislikedBy user objects to string usernames
+        b.dislikedBy = (b.dislikedBy || []).map((u: any) =>
+          typeof u === 'object' && u.username ? u.username : u
+        );
+    
+        return {
+          ...b,
+          comments: [],
+          newComment: ''
+        };
+      });
+    
+      // Then fetch comments, etc.
       this.blogs.forEach(blog => {
         this.blogService.getComments(blog.id).subscribe(res => {
           blog.comments = res;
         });
       });
-    });
+    });    
   }
 
 
@@ -118,4 +129,65 @@ export class BlogListComponent implements OnInit {
       }
     });
   }
+
+  likeBlog(blog: any): void {
+    this.blogService.likeBlog(blog.id).subscribe({
+      next: () => {
+        // Update local likedBy, remove user from dislikedBy
+        const currentUser = this.authService.getUsername(); // or store "sub"
+        // if you don't have getUsername, parse the local token
+  
+        if (!blog.likedBy) blog.likedBy = [];
+        if (!blog.dislikedBy) blog.dislikedBy = [];
+  
+        // remove from dislikedBy if present
+        blog.dislikedBy = blog.dislikedBy.filter((u: string) => u !== currentUser);
+  
+        // add to likedBy if not present
+        if (!blog.likedBy.includes(currentUser)) {
+          blog.likedBy.push(currentUser);
+        }
+      },
+      error: err => console.error('Error liking blog:', err)
+    });
+  }
+  
+  dislikeBlog(blog: any): void {
+    this.blogService.dislikeBlog(blog.id).subscribe({
+      next: () => {
+        const currentUser = this.authService.getUsername(); 
+        if (!blog.likedBy) blog.likedBy = [];
+        if (!blog.dislikedBy) blog.dislikedBy = [];
+  
+        // remove from likedBy
+        blog.likedBy = blog.likedBy.filter((u: string) => u !== currentUser);
+  
+        // add to dislikedBy if not present
+        if (!blog.dislikedBy.includes(currentUser)) {
+          blog.dislikedBy.push(currentUser);
+        }
+      },
+      error: err => console.error('Error disliking blog:', err)
+    });
+  }
+
+  formatLikesTooltip(likedBy: string[]): string {
+    if (!likedBy || likedBy.length === 0) return 'No one yet';
+    const firstThree = likedBy.slice(0, 3).join(', ');
+    if (likedBy.length > 3) {
+      return `${firstThree}... and ${likedBy.length - 3} more`;
+    }
+    return firstThree;
+  }
+  
+  formatDislikesTooltip(dislikedBy: string[]): string {
+    if (!dislikedBy || dislikedBy.length === 0) return 'No one yet';
+    const firstThree = dislikedBy.slice(0, 3).join(', ');
+    if (dislikedBy.length > 3) {
+      return `${firstThree}... and ${dislikedBy.length - 3} more`;
+    }
+    return firstThree;
+  }
+  
+  
 }

@@ -40,6 +40,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/blogs/**").hasRole("AUTHOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/blogs/**").hasRole("AUTHOR")
                 .requestMatchers(HttpMethod.GET, "/api/blogs/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/blogs/{id}/like").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/blogs/{id}/dislike").authenticated()
+
+
                 .anyRequest().authenticated()
         );
 

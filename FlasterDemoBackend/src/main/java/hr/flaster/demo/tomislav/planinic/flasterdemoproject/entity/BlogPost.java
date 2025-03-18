@@ -37,6 +37,12 @@ public class BlogPost {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> likedBy = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(name = "blog_dislikes",
+            joinColumns = @JoinColumn(name = "blog_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> dislikedBy = new HashSet<>();
+
     @OneToMany(mappedBy = "blogPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
@@ -122,5 +128,13 @@ public class BlogPost {
 
     public void setPublished(boolean isPublished) {
         this.isPublished = isPublished;
+    }
+
+    public Set<User> getDislikedBy() {
+        return dislikedBy;
+    }
+
+    public void setDislikedBy(Set<User> dislikedBy) {
+        this.dislikedBy = dislikedBy;
     }
 }

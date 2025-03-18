@@ -8,6 +8,22 @@
   <h3>{{ blog.title }}</h3>
   <p>{{ blog.content }}</p>
 
+  <div class="like-dislike">
+    <!-- On hover, show who liked -->
+    <button class="like-button"
+            (click)="likeBlog(blog)"
+            [title]="formatLikesTooltip(blog.likedBy)">
+      <span>Like</span> ({{ blog.likedBy?.length || 0 }})
+    </button>
+  
+    <button class="dislike-button"
+            (click)="dislikeBlog(blog)"
+            [title]="formatDislikesTooltip(blog.dislikedBy)">
+      <span>Dislike</span> ({{ blog.dislikedBy?.length || 0 }})
+    </button>
+  </div>
+  
+
   <!-- If user is an author, show edit & delete -->
   <div class="blog-actions" *ngIf="isAuthor()">
     <button (click)="editBlog(blog.id)">Edit</button>
