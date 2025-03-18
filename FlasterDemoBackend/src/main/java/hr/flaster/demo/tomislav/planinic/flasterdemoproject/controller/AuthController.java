@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Handles authentication and user registration operations.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -32,6 +35,14 @@ public class AuthController {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    /**
+     * Constructs an {@code AuthController} with dependencies for authentication and user management.
+     *
+     * @param authenticationManager AuthenticationManager for login authentication.
+     * @param userRepository Repository for user persistence.
+     * @param passwordEncoder Password encoder for secure password storage.
+     * @param roleRepository Repository for retrieving user roles.
+     */
     public AuthController(AuthenticationManager authenticationManager,
                           UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
@@ -42,7 +53,12 @@ public class AuthController {
         this.roleRepository = roleRepository;
     }
 
-    // 1) Register
+    /**
+     * Handles user registration.
+     *
+     * @param registerRequest Contains user registration details (username, email, password, role).
+     * @return Response indicating success or failure.
+     */
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
@@ -52,32 +68,33 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Email is already in use!");
         }
 
-        // Create new user
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
-        // 1) Assign roles to user
+        // Assign default role
         Role defaultRole = roleRepository.findByName("ROLE_READER")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
         user.getRoles().add(defaultRole);
 
-        // 2) If the user wants to be an author, optionally do:
-        if (registerRequest.getRole() != null && registerRequest.getRole().equals("AUTHOR")) {
+        // Assign AUTHOR role if requested
+        if ("AUTHOR".equals(registerRequest.getRole())) {
             Role authorRole = roleRepository.findByName("ROLE_AUTHOR")
                     .orElseThrow(() -> new RuntimeException("Author role not found"));
             user.getRoles().add(authorRole);
         }
 
         userRepository.save(user);
-
-        // Return JSON instead of plain text
         return ResponseEntity.ok(Collections.singletonMap("message", "User registered successfully!"));
     }
 
-
-    // 2) Login
+    /**
+     * Handles user login and JWT token generation.
+     *
+     * @param loginRequest Contains login credentials (username, password).
+     * @return Response with JWT token if authentication is successful.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -87,40 +104,38 @@ public class AuthController {
                             loginRequest.getPassword()
                     )
             );
-            System.out.println("LOGIN MY MATEY");
-            // If successful, generate JWT
+
+            // Generate JWT token upon successful login
             String token = generateJwtToken(loginRequest.getUsername());
-            // Return token in a JSON object
             return ResponseEntity.ok(Collections.singletonMap("token", token));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Invalid username or password");
         }
     }
 
+    /**
+     * Generates a JWT token containing user details.
+     *
+     * @param username Username for which to generate the token.
+     * @return Generated JWT token.
+     */
     private String generateJwtToken(String username) {
         User userEntity = userRepository.findByUsername(username);
         if (userEntity == null) {
             throw new RuntimeException("User not found");
         }
 
-        // Convert userEntity.getRoles() to a list of role names
         List<String> roleNames = userEntity.getRoles().stream()
-                .map(Role::getName)  // e.g. "ROLE_AUTHOR"
+                .map(Role::getName)
                 .collect(Collectors.toList());
-
-        long expirationMs = 24 * 60 * 60 * 1000; // 24h
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", roleNames)  // <--- put roles in the token
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .claim("roles", roleNames)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
                 .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }
-
 }

@@ -14,6 +14,9 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller for managing comments on blog posts.
+ */
 @RestController
 @RequestMapping("/api/comments")
 public class CommentController {
@@ -22,6 +25,13 @@ public class CommentController {
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Constructs a {@code CommentController} with repositories for comment, blog, and user management.
+     *
+     * @param commentRepository Repository for comment persistence.
+     * @param blogRepository Repository for blog post persistence.
+     * @param userRepository Repository for user persistence.
+     */
     public CommentController(CommentRepository commentRepository,
                              BlogRepository blogRepository,
                              UserRepository userRepository) {
@@ -30,7 +40,14 @@ public class CommentController {
         this.userRepository = userRepository;
     }
 
-    // Add comment to a blog post
+    /**
+     * Adds a comment to a blog post.
+     *
+     * @param blogId The ID of the blog post to comment on.
+     * @param payload The comment message.
+     * @param principal The authenticated user making the comment.
+     * @return The created comment.
+     */
     @PostMapping("/{blogId}")
     public Comment addComment(@PathVariable Long blogId,
                               @RequestBody Map<String, String> payload,
@@ -52,11 +69,14 @@ public class CommentController {
         return commentRepository.save(comment);
     }
 
-    // Optionally, get comments for a blog post
+    /**
+     * Retrieves all comments for a given blog post.
+     *
+     * @param blogId The ID of the blog post.
+     * @return A list of comments for the specified blog post.
+     */
     @GetMapping("/{blogId}")
     public List<Comment> getComments(@PathVariable Long blogId) {
-        // or create a custom query "findByBlogPostId(blogId)"
         return commentRepository.findAllByBlogPostId(blogId);
     }
 }
-

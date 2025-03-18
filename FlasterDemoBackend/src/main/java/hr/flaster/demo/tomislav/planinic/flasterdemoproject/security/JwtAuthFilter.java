@@ -21,12 +21,26 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * JWT authentication filter that intercepts requests, extracts the JWT token,
+ * and sets the authentication context if the token is valid.
+ */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    /**
+     * Filters incoming HTTP requests to authenticate users based on JWT tokens.
+     * If a valid token is found in the Authorization header, the user's authentication context is set.
+     *
+     * @param request The HTTP request being processed.
+     * @param response The HTTP response.
+     * @param filterChain The filter chain to pass the request to the next filter.
+     * @throws ServletException If an exception occurs while processing the request.
+     * @throws IOException If an I/O error occurs.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -34,6 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
@@ -65,4 +80,3 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-
