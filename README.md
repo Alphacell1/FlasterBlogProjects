@@ -29,10 +29,10 @@ The following environment variables are required:
 - `JWT_SECRET` (32+ character secret for JWT)
 
 For example, on Windows Command Prompt:
--setx DB_URL "jdbc:postgresql://localhost:5432/flaster_blog_db"
--setx DB_USERNAME "postgres" 
--setx DB_PASSWORD "mysecret" 
--setx JWT_SECRET "Px9z4kG7F1c8fC6g9s2hW8s3bL7d5fT!"
+setx DB_URL "jdbc:postgresql://localhost:5432/flaster_blog_db"
+setx DB_USERNAME "postgres"
+setx DB_PASSWORD "mysecret"
+setx JWT_SECRET "Px9z4kG7F1c8fC6g9s2hW8s3bL7d5fT!"
 
 
 ## 3) Backend Setup
