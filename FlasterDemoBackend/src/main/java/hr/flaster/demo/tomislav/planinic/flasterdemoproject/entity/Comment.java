@@ -1,6 +1,7 @@
 package hr.flaster.demo.tomislav.planinic.flasterdemoproject.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -16,12 +17,14 @@ public class Comment {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blog_id")
-    private BlogPost blogPost;
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"password", "roles"}) // don't serialize sensitive data
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user; // the commenter
+    @JoinColumn(name = "blog_id")
+    @JsonIgnoreProperties({"author", "likedBy", "comments"}) // break cyclic references
+    private BlogPost blogPost;
 
     public Comment() {}
 

@@ -2,9 +2,12 @@ package hr.flaster.demo.tomislav.planinic.flasterdemoproject.controller;
 
 
 import hr.flaster.demo.tomislav.planinic.flasterdemoproject.entity.BlogPost;
+import hr.flaster.demo.tomislav.planinic.flasterdemoproject.entity.User;
 import hr.flaster.demo.tomislav.planinic.flasterdemoproject.repository.BlogRepository;
+import hr.flaster.demo.tomislav.planinic.flasterdemoproject.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -13,8 +16,11 @@ public class BlogController {
 
     private final BlogRepository BlogPostRepository;
 
-    public BlogController(BlogRepository blogRepository) {
-        this.BlogPostRepository = blogRepository;
+    private final UserRepository userRepository;
+
+    public BlogController(BlogRepository blogPostRepository, UserRepository userRepository) {
+        BlogPostRepository = blogPostRepository;
+        this.userRepository = userRepository;
     }
 
     // GET all BlogPosts
@@ -32,8 +38,11 @@ public class BlogController {
 
     // CREATE a new BlogPost
     @PostMapping
-    public BlogPost createBlogPost(@RequestBody BlogPost BlogPost) {
-        return BlogPostRepository.save(BlogPost);
+    public BlogPost createBlogPost(@RequestBody BlogPost blogPost, Principal principal) {
+        System.out.println("Creating new blog by user: " + principal.getName());
+        User author = userRepository.findByUsername(principal.getName());
+        blogPost.setAuthor(author);
+        return BlogPostRepository.save(blogPost);
     }
 
     // UPDATE a BlogPost

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,15 +18,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    @Value("${jwt.secret:MY_SUPER_SECRET_KEY_FOR_JWT}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -44,27 +44,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         .getBody();
 
                 String username = claims.getSubject();
+                List<String> roles = claims.get("roles", List.class);
 
-                // (1) Check that user actually exists in DB:
-                User userEntity = userRepository.findByUsername(username);
-                if (userEntity == null) {
-                    // user not found => treat token as invalid
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
-                    return;
-                }
+                List<SimpleGrantedAuthority> authorities = roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
 
-                // (2) Build an auth token. If no roles, pass null or a simple list of granted authorities
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(username, null, null);
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
+                System.out.println("Authenticated user: " + username + ", roles: " + roles);
+
             } catch (JwtException e) {
-                // token invalid or expired
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                System.out.println("Invalid JWT: " + e.getMessage());
                 return;
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }

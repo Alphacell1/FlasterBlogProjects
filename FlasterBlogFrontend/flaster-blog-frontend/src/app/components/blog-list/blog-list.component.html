@@ -1,9 +1,17 @@
-<div class="blog-list">
-    <h2>Blog Posts</h2>
-    <div *ngFor="let blog of blogs" class="blog-item">
-      <h3>{{ blog.title }}</h3>
-      <p>{{ blog.content }}</p>
-      <hr />
-    </div>
+<h2>Blog Posts</h2>
+
+<!-- If user is an author, show a 'Create New Blog' button -->
+<div class="top-actions" *ngIf="isAuthor()">
+  <button (click)="goToCreateBlog()">Create New Blog</button>
+</div>
+
+<div *ngFor="let blog of blogs" class="blog-item">
+  <h3>{{ blog.title }}</h3>
+  <p>{{ blog.content }}</p>
+
+  <!-- If user is an author, show edit & delete -->
+  <div class="blog-actions" *ngIf="isAuthor()">
+    <button (click)="editBlog(blog.id)">Edit</button>
+    <button (click)="deleteBlog(blog.id)">Delete</button>
   </div>
-  
+</div>

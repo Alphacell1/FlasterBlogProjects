@@ -1,6 +1,7 @@
 package hr.flaster.demo.tomislav.planinic.flasterdemoproject.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -8,6 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "blog_posts")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class BlogPost {
 
     @Id
@@ -23,6 +25,7 @@ public class BlogPost {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
+    @JsonIgnoreProperties({"roles", "password", "email"}) // fix cyclic calls
     private User author;
 
     @Column(nullable = false)

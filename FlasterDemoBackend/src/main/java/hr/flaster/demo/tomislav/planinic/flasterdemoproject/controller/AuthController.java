@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -98,15 +100,27 @@ public class AuthController {
     }
 
     private String generateJwtToken(String username) {
+        User userEntity = userRepository.findByUsername(username);
+        if (userEntity == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        // Convert userEntity.getRoles() to a list of role names
+        List<String> roleNames = userEntity.getRoles().stream()
+                .map(Role::getName)  // e.g. "ROLE_AUTHOR"
+                .collect(Collectors.toList());
+
         long expirationMs = 24 * 60 * 60 * 1000; // 24h
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .setSubject(username)
+                .claim("roles", roleNames)  // <--- put roles in the token
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }
+
 }

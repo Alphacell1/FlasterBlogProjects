@@ -1,0 +1,28 @@
+h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .top-actions {
+    margin-bottom: 1.5rem;
+    text-align: right; /* put the button on the right side */
+  }
+  
+  .blog-item {
+    background-color: #fff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .blog-item h3 {
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .blog-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  
